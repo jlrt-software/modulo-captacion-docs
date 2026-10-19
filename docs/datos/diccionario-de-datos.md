@@ -46,7 +46,7 @@ La entidad central: cada consulta, venga del formulario o de una charla.
 | estado | String | Etapa del embudo comercial en la que está la consulta. | Obligatorio: nuevo, contactado, demo, propuesta o cerrado. Al crearse: “nuevo” si entra por formulario y “contactado” si se carga a mano. Desde “nuevo” solo se puede pasar a “contactado”; después, solo hacia adelante. |
 | id_responsable | Integer | Usuario que tomó la consulta (el “tomado por” del panel). | Referencia a Usuario; vacío solo mientras el estado es “nuevo”. En la carga manual, el usuario que la carga. |
 | fecha_alta | DateTime | Momento en que se registró la consulta. Es el punto de partida para medir M2 y M3. | Obligatorio; lo completa el sistema. Formato: fecha y hora con zona horaria (Argentina, UTC−3). |
-| resultado_cierre | String | Cómo terminó la consulta al cerrarse. | Obligatorio cuando el estado es “cerrado”: “ganado”, “perdido” o “descartado” (datos suprimidos por falta de consentimiento); vacío en los demás estados. |
+| resultado_cierre | String | Cómo terminó la consulta al cerrarse. | Obligatorio cuando el estado es “cerrado”: “ganado”, “perdido”, “descartado” (datos suprimidos por falta de consentimiento) o “sin respuesta” (vencida sin actividad, RI15); vacío en los demás estados. |
 | fecha_toma | DateTime | Momento en que un usuario tomó la consulta. | Lo completa el sistema al asignar el responsable; en la carga manual, igual a fecha_alta. |
 | fecha_aviso | DateTime | Momento en que se envió el correo a los usuarios activos. | Lo completa el sistema; vacío en la carga manual, que no genera aviso. Meta M2: menos de 5 minutos después de fecha_alta. |
 | consentimiento | Boolean | Aceptación del tratamiento de los datos personales (Ley N.° 25.326, 2000). | Obligatorio. Verdadero para enviar el formulario; en la carga manual, falso hasta que la persona acepte por escrito. |
@@ -56,17 +56,17 @@ La entidad central: cada consulta, venga del formulario o de una charla.
 
 ## Historial de estados
 
-Cada cambio de estado de una consulta. Es el que permite medir cuándo se llegó a cada estado.
+Cada cambio de estado de una consulta, y también los registros sin cambio de estado: reasignaciones, notas de seguimiento y mensajes agregados a una consulta existente. Es el que permite medir cuándo se llegó a cada estado y cuándo fue la última actividad.
 
 | Campo | Tipo | Descripción funcional | Valores permitidos y restricciones |
 |---|---|---|---|
 | id_historial | Integer | Identificador único del cambio. | Clave primaria, autonumérico. |
 | id_lead | Integer | Consulta a la que pertenece el cambio. | Obligatorio; referencia a Lead. |
-| estado_anterior | String | Estado antes del cambio. | Igual al Lead.estado vigente al momento del cambio; vacío solo en el registro de alta. |
+| estado_anterior | String | Estado antes del cambio. | Igual al Lead.estado vigente al momento del cambio; vacío solo en el registro de alta. En los registros sin cambio de estado (reasignación, nota de seguimiento o mensaje agregado), igual a estado_nuevo. |
 | estado_nuevo | String | Estado después del cambio. | Obligatorio; mismos valores que Lead.estado. |
 | fecha_cambio | DateTime | Momento del cambio. | Obligatorio; lo completa el sistema. Meta M3: en los leads del formulario, el primer cambio a “contactado” tiene que estar a 3 horas o menos de fecha_alta. |
-| id_usuario | Integer | Usuario que hizo el cambio. | Referencia a Usuario; vacío solo en el alta automática por formulario. |
-| nota | String | Comentario del usuario: qué se habló y cuál es el próximo paso. | Opcional, hasta 500 caracteres. |
+| id_usuario | Integer | Usuario que hizo el cambio. | Referencia a Usuario; vacío solo en los registros que hace el sistema: el alta por formulario, el mensaje agregado a una consulta existente (RI12) y el cierre por vencimiento (RI15). |
+| nota | String | Comentario del usuario: qué se habló y cuál es el próximo paso. En una consulta unificada, el mensaje que llegó por el formulario. | Opcional, hasta 1000 caracteres, como el mensaje de Lead. |
 
 ## Reglas de integridad
 
@@ -85,9 +85,10 @@ Las reglas se agrupan por tipo: de entidad (identificación de cada registro), r
 | RI9 | De negocio | Desde “nuevo” solo se pasa a “contactado”; después, solo hacia adelante, y “cerrado” es definitivo. | Función que valida cada cambio de estado antes de guardarlo. |
 | RI10 | De negocio | Todo cambio de Lead.estado genera, en la misma operación, su registro en el Historial, así que el estado de la consulta coincide siempre con el último estado_nuevo. | Disparador (trigger) sobre la tabla Lead. |
 | RI11 | De negocio | Los registros del Historial no se modifican ni se borran: son la evidencia con la que se miden las metas. | Reglas de acceso que solo permiten agregar registros. |
-| RI12 | Duplicados | No puede haber dos consultas abiertas del mismo producto con el mismo teléfono o el mismo correo. Si llega una por el formulario, su mensaje se agrega al Historial de la existente. | Índices únicos limitados a las consultas que no están cerradas. |
-| RI13 | De acceso | El formulario solo puede crear consultas, nunca leerlas, y solo los usuarios activos ven y modifican las consultas. | Reglas de acceso por fila (RLS) de Supabase. |
+| RI12 | Duplicados | No puede haber dos consultas abiertas del mismo producto con el mismo teléfono o el mismo correo. El correo se compara en minúsculas y el teléfono, solo por sus dígitos. Si llega una por el formulario, su mensaje se agrega al Historial de la existente, como un registro sin cambio de estado. | Índices únicos sobre el correo y el teléfono normalizados, limitados a las consultas que no están cerradas. El formulario no inserta directo en la tabla: llama a una función de la base que, en una sola transacción, intenta crear la consulta y, si un índice la rechaza, agrega el mensaje a la existente. Así, dos envíos simultáneos no pueden crear dos consultas. |
+| RI13 | De acceso | El formulario solo puede crear consultas, a través de la función de alta de RI12, nunca leerlas, y solo los usuarios activos ven y modifican las consultas. | Reglas de acceso por fila (RLS) de Supabase. La función de alta es la única operación habilitada para el formulario. |
 | RI14 | De supresión (Ley 25.326) | Si el titular pide que se borren sus datos, se vacían nombre, teléfono, correo, empresa y mensaje, pero la consulta se conserva con sus fechas y su Historial. Si la supresión se debe a que no aceptó el consentimiento en 48 horas, la consulta además se cierra como “descartado”. | Función de supresión que vacía los datos, completa fecha_supresion y registra el cambio en el Historial. |
+| RI15 | De negocio | Una consulta en contactado, demo o propuesta que pasa 30 días sin registros nuevos en el Historial (cambios de estado o notas de seguimiento) se cierra como “sin respuesta”. Las consultas en “nuevo” no vencen: si nadie las toma, el problema es interno y lo controla la meta M3. | Tarea programada diaria en la base (pg_cron de Supabase) que cierra las consultas vencidas. El cierre pasa por el disparador de RI10, así que queda en el Historial, con id_usuario vacío y la nota “Cierre por vencimiento”. |
 
 Los indicadores de auditoría técnica ([docs/control/indicadores.md](../control/indicadores.md)) controlan el cumplimiento de estas reglas.
 

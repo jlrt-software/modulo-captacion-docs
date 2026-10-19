@@ -2,7 +2,7 @@
 
 Las tres historias del módulo siguen el formato de la cátedra: enunciado “Como… quiero… para…”, criterios de aceptación y prioridad. Cada una se sigue en el tablero de GitHub Projects como un issue con sus tareas.
 
-Tablero: https://github.com/orgs/JLRT/projects/1
+Tablero: https://github.com/orgs/jlrt-software/projects/1
 
 ## HU1
 

@@ -25,7 +25,7 @@ El módulo de captación resuelve eso:
 
 ## Enlaces
 
-- **Tablero de gestión (GitHub Projects):** https://github.com/orgs/JLRT/projects/1
+- **Tablero de gestión (GitHub Projects):** https://github.com/orgs/jlrt-software/projects/1
 - **Proceso en BPMN 2.0:** [docs/procesos](docs/procesos/README.md)
 - **Diccionario de datos y reglas de integridad:** [docs/datos/diccionario-de-datos.md](docs/datos/diccionario-de-datos.md)
 - **Historias de usuario:** [docs/backlog/historias-de-usuario.md](docs/backlog/historias-de-usuario.md)
