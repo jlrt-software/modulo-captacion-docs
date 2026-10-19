@@ -21,7 +21,7 @@ El módulo de captación resuelve eso:
 | Integrante | Rol en JLRT | Participación en este repositorio |
 |---|---|---|
 | Leandro Agustín Trabucco Bustos | Desarrollador Full Stack | Autor de la documentación, ramas, commits y Pull Requests |
-| Joaquín R. | Líder Técnico | Revisión de pares del Pull Request del modelo BPMN |
+| Joaquín R. | Líder Técnico | Revisión de pares del Pull Request de corrección, que incluyó el modelo BPMN ya integrado |
 
 ## Enlaces
 
