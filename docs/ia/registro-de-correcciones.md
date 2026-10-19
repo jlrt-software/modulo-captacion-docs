@@ -57,5 +57,5 @@ El autor pidió tres revisiones con agentes independientes, una de los organigra
 | Qué propuso el asistente | Corrección o decisión del autor |
 |---|---|
 | Repositorio de documentación en la organización JLRT, GitHub Projects como tablero, historias de usuario con tareas de diseño que avanzan antes que las de desarrollo y BPMN generado como archivo `.bpmn`. | Aceptó el alcance. Eligió a Joaquín como revisor del Pull Request y fijó la entrega para el 20 de octubre. |
-| Valores sugeridos para los indicadores y para el plazo del consentimiento. | Fijó los valores definitivos: primer contacto en 3 horas con al menos el 90 % de cumplimiento, revisión semanal a cargo del Desarrollador Full Stack y 48 horas para aceptar el consentimiento. |
+| Valores sugeridos para los indicadores y para el plazo del consentimiento. | Fijó los valores definitivos: primer contacto en 3 horas con al menos el 90 % de cumplimiento, revisión cada dos semanas a cargo del Desarrollador Full Stack (por el bajo número de consultas esperado) y 48 horas para aceptar el consentimiento. |
 | Interpretación de las observaciones docentes sobre la Entrega 3. | Aceptó la propuesta: rectángulos con cargos y niveles directivo y operativo marcados en los organigramas, y una tabla de reglas de integridad clasificadas por tipo. |

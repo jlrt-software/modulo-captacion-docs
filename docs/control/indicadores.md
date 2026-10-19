@@ -2,7 +2,7 @@
 
 El control sigue las cuatro etapas de la cátedra: establecer estándares, medir el desempeño real, compararlo con el estándar y aplicar una acción correctiva cuando el resultado no se acepta. Los estándares salen de las metas de la Entrega 2 y de las reglas de integridad del [diccionario de datos](../datos/diccionario-de-datos.md).
 
-Los indicadores se revisan con frecuencia semanal, salvo el plazo (una vez) y el costo (mensual, con la facturación). La revisión está a cargo de Leandro Trabucco (Desarrollador Full Stack).
+Como se espera un número bajo de consultas, los indicadores se revisan cada dos semanas, salvo el plazo (una vez) y el costo (mensual, con la facturación). La revisión está a cargo de Leandro Trabucco (Desarrollador Full Stack).
 
 ## Desempeño del proceso
 
